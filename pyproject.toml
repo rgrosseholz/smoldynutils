@@ -13,6 +13,16 @@ dependencies = [
     "pandas (>=3.0.0,<4.0.0)",
     "matplotlib (>=3.10.8,<4.0.0)"
 ]
+keywords = ["smoldyn", "simulation", "modeling"]
+classifiers = [
+	"License :: OSI Approved :: MIT License",
+	"Programming Language :: Python :: 3",
+] 
+
+[project.urls]
+Homepage = "https://github.com/rgrosseholz/smoldynutils"
+Repository = "https://github.com/rgrosseholz/smoldynutils"
+Issues = "https://github.com/rgrosseholz/smoldynutils/issues"
 
 [dependency-groups]
 dev = [
