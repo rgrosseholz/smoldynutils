@@ -23,14 +23,24 @@ class Trajectory:
         return len(self.t)
     
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Trajectory):
-            return NotImplemented
-        serial_bool = self.serialnumber == other.serialnumber
-        t_bool = np.array_equal(self.t, other.t)
-        x_bool = np.array_equal(self.x, other.x)
-        y_bool = np.array_equal(self.y, other.y)
-        species_bool = np.array_equal(self.species, other.species)
-        return serial_bool and t_bool and x_bool and y_bool and species_bool
+        if isinstance(other, Trajectory):
+            serial_bool = self.serialnumber == other.serialnumber
+            t_bool = np.array_equal(self.t, other.t)
+            x_bool = np.array_equal(self.x, other.x)
+            y_bool = np.array_equal(self.y, other.y)
+            species_bool = np.array_equal(self.species, other.species)
+            return serial_bool and t_bool and x_bool and y_bool and species_bool
+        if isinstance(other, dict):
+            if len(other["t"]) != len(self):
+                return False
+            serial_bool = self.serialnumber == other["serialnum"]
+            t_bool = np.array_equal(self.t, other["t"])
+            x_bool = np.array_equal(self.x, other["x"])
+            y_bool = np.array_equal(self.y, other["y"])
+            species_bool = np.array_equal(self.species, other["species"])
+            return serial_bool and t_bool and x_bool and y_bool and species_bool
+
+        return NotImplemented
     
     def __getitem__(self, i: int):
         return (
