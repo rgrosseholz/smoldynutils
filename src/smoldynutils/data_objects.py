@@ -3,10 +3,11 @@ from dataclasses import dataclass
 from typing import Sequence, Union, overload
 import math
 
+
 @dataclass(frozen=True, slots=True)
 class Trajectory:
-    """Immutable container for trajectory.
-    """
+    """Immutable container for trajectory."""
+
     serialnumber: int
     t: np.ndarray
     x: np.ndarray
@@ -28,7 +29,7 @@ class Trajectory:
             raise ValueError("t, x, y, species must be 1D arrays")
         if not np.issubdtype(self.species.dtype, np.integer):
             raise TypeError("Species must be integer-coded")
-        
+
     def __len__(self) -> int:
         """Returns number of points in trajectory
 
@@ -36,7 +37,7 @@ class Trajectory:
             int: Number of timepoints in trajectory
         """
         return len(self.t)
-    
+
     def __eq__(self, other: object) -> bool:
         """Checks for equality.
 
@@ -64,7 +65,7 @@ class Trajectory:
             return serial_bool and t_bool and x_bool and y_bool and species_bool
 
         return NotImplemented
-    
+
     def __getitem__(self, i: int):
         return (
             self.serialnumber,
@@ -74,11 +75,11 @@ class Trajectory:
             self.species[i],
         )
 
+
 @dataclass(frozen=True, slots=True)
 class TrajectorySet:
-    """Immutable container for set of trajectories.
+    """Immutable container for set of trajectories."""
 
-    """
     trajectories: tuple[Trajectory, ...]
 
     @classmethod
@@ -92,7 +93,7 @@ class TrajectorySet:
             TrajectorySet: Contains provided Trajectories
         """
         return cls(tuple(trajectories))
-    
+
     def __len__(self) -> int:
         """Returns the number of trajectories in the set
 
@@ -129,5 +130,5 @@ class TrajectorySet:
         if isinstance(other, TrajectorySet):
             return TrajectorySet(self.trajectories + other.trajectories)
         if isinstance(other, Trajectory):
-            return TrajectorySet(self.trajectories + (other, ))
+            return TrajectorySet(self.trajectories + (other,))
         return NotImplemented

@@ -28,11 +28,16 @@ Issues = "https://github.com/rgrosseholz/smoldynutils/issues"
 dev = [
     "flake8 (>=7.3.0,<8.0.0)",
     "pytest (>=9.0.2,<10.0.0)",
-    "pytest-cov (>=7.0.0,<8.0.0)"
+    "pytest-cov (>=7.0.0,<8.0.0)",
+    "black (>=26.1.0,<27.0.0)"
 ]
 
 [tool.poetry]
 packages = [{include = "smoldynutils", from = "src"}]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
