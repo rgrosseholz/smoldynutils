@@ -55,7 +55,8 @@ def test_fixed_grid_parser(tmp_path):
     
     path = _write_empty(tmp_path)
     parser = SmoldynParser()
-    with pytest.raises(ValueError):
-        ts = parser.parse_fixed_grid(str(path))
+    with pytest.warns(UserWarning, match="input contained no data"):
+        with pytest.raises(ValueError):
+            ts = parser.parse_fixed_grid(str(path))
 
     
