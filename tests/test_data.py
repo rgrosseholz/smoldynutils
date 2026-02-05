@@ -18,9 +18,14 @@ def test_traj_construction():
     assert traj.y.shape == y.shape
     assert traj.species.shape == species.shape
     assert len(traj) == 3
+    assert traj == traj
+    assert traj == {"t": t, "x": x, "y": y,"species":species, "serialnum": 1}
+    assert traj != {"t": np.array([0.0, 1]), "x": x, "y": y,"species":species, "serialnum": 1}
+    assert (traj.__eq__(1)) is NotImplemented
+    assert traj[0] == (1, t[0], x[0], y[0], species[0])
 
 def test_raises_errors():
-    t, x, y, _ = _get_arrays()
+    t, x, y, species = _get_arrays()
     with pytest.raises(ValueError):
         traj = Trajectory(serialnumber=1, t=t, x=x, y=y, species=np.array([0, 0]))
     with pytest.raises(ValueError):
