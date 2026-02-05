@@ -21,6 +21,25 @@ class Trajectory:
         
     def __len__(self) -> int:
         return len(self.t)
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Trajectory):
+            return NotImplemented
+        serial_bool = self.serialnumber == other.serialnumber
+        t_bool = np.array_equal(self.t, other.t)
+        x_bool = np.array_equal(self.x, other.x)
+        y_bool = np.array_equal(self.y, other.y)
+        species_bool = np.array_equal(self.species, other.species)
+        return serial_bool and t_bool and x_bool and y_bool and species_bool
+    
+    def __getitem__(self, i: int):
+        return (
+            self.serialnumber,
+            self.t[i],
+            self.x[i],
+            self.y[i],
+            self.species[i],
+        )
 
 @dataclass(frozen=True, slots=True)
 class TrajectorySet:
@@ -32,6 +51,9 @@ class TrajectorySet:
     
     def __len__(self) -> int:
         return len(self.trajectories)
+
+    def __getitem__(self, key: int):
+        return self.trajectories[key]
 
     @overload
     def __add__(self, other: "TrajectorySet") -> "TrajectorySet": ...
