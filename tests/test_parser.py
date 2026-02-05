@@ -40,7 +40,12 @@ def test_fixed_grid_parser(tmp_path):
     parser = SmoldynParser()
     ts = parser.parse_fixed_grid(str(path))
     assert len(ts) == 2
-    assert ts[0]
+    assert ts[0] == {"serialnum": 99, 
+                     "t": np.array([1, 2]),
+                     "x": np.array([1.01686, 1.02]),
+                     "y": np.array([8.12141, 8.13]),
+                     "species": np.array([1, 1])
+                     }
 
 
     path = _write_sample_ragged(tmp_path)
@@ -52,4 +57,5 @@ def test_fixed_grid_parser(tmp_path):
     parser = SmoldynParser()
     with pytest.raises(ValueError):
         ts = parser.parse_fixed_grid(str(path))
+
     

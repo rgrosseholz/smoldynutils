@@ -24,17 +24,19 @@ def parse_smoldyn_molpos_fixed_grid(
         dtype_species = np.uint16,
         dtype_serialnum = np.uint32
 ) -> TrajectorySet:
-    """_summary_
+    """Parser based on numpy loadtxt assuming equal size of all trajectories.
+
+    Sorts based on time and serialnumber. Then generates Trajectories based on expected size.
 
     Args:
-        path (str): _description_
-        delimiter (str, optional): _description_. Defaults to ",".
-        dtype_xy (_type_, optional): _description_. Defaults to np.float32.
-        dtype_t (_type_, optional): _description_. Defaults to np.float32.
-        dtype_species (_type_, optional): _description_. Defaults to np.uint16.
+        path (str): Path to smoldyn data (assuming listmols2 command)
+        delimiter (str, optional): Column delimiter. Defaults to ",".
+        dtype_xy (np.float32, optional): xy data type. Defaults to np.float32.
+        dtype_t (np.float32, optional): t data type. Defaults to np.float32.
+        dtype_species (np.uint16, optional): Species data type. Defaults to np.uint16.
 
     Returns:
-        TrajectorySet: _description_
+        TrajectorySet: Set of read trajectories.
     """
     file_content = np.loadtxt(path, delimiter=delimiter, dtype=np.float32)
     if file_content.size == 0:
@@ -71,4 +73,22 @@ def parse_smoldyn_molpos_fixed_grid(
 
     return TrajectorySet(tuple(trajs))
 
+if __name__ == "__main__":
+    sample_smoldyn_file = (
+        "1,1,0,12.7828,2.06726,100\n"
+        "1,1,0,1.01686,8.12141,99\n"
+        "2,1,0,12.8000,2.10000,100\n"
+        "2,1,0,1.02000,8.13000,99\n"
+        "3,1,0,12.7828,2.06726,99\n"
+        "3,1,0,12.7828,2.06726,100\n"
+    )
+    def _write_sample(tmp_path="."):
+        file = tmp_path + "/sample.csv"
+        with open(file, "w") as file:
+            file.write(sample_smoldyn_file)    
+        return "./sample.csv"
 
+    path = _write_sample()
+    parser = SmoldynParser()
+    ts = parser.parse_fixed_grid( str(path))
+    ts[0]
