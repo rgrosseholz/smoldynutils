@@ -3,3 +3,7 @@ repos:
     rev: 25.1.0
     hooks:
       - id: black
+
+ci:
+  autofix_prs: true
+  autoupdate_schedule: weekly
