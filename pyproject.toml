@@ -28,11 +28,41 @@ Issues = "https://github.com/rgrosseholz/smoldynutils/issues"
 dev = [
     "flake8 (>=7.3.0,<8.0.0)",
     "pytest (>=9.0.2,<10.0.0)",
-    "pytest-cov (>=7.0.0,<8.0.0)"
+    "pytest-cov (>=7.0.0,<8.0.0)",
+    "black (>=26.1.0,<27.0.0)",
+    "pre-commit (>=4.5.1,<5.0.0)",
+    "ruff (>=0.15.0,<0.16.0)",
+    "isort (>=7.0.0,<8.0.0)",
+    "mypy (>=1.19.1,<2.0.0)"
 ]
 
 [tool.poetry]
 packages = [{include = "smoldynutils", from = "src"}]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 100
+lint.select = ["E", "F", "W", "C90", "N"]
+lint.ignore = ["E501"]
+extend-exclude = ["tests"]
+
+[tool.ruff.lint.pep8-naming]
+ignore-names = ["D", "MSD"]
+
+[tool.isort]
+profile = "black"
+src_paths = ["src", "tests"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+mypy_path = ["src"]
+explicit_package_bases = true
+exclude = ["^tests/"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

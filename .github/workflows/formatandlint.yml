@@ -1,0 +1,33 @@
+name: code quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry
+
+      - name: Install deps
+        run: poetry install
+
+      - name: Check formatting
+        run: poetry run black --check .
+
+      - name: Run ruff linter
+        run: poetry run ruff check .
+
+      - name: Run isort (check)
+        run: poetry run isort --check-only .
+      
+      - name: Run mypy
+        run: poetry run mypy src
