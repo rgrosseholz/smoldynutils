@@ -45,8 +45,8 @@ target-version = ["py312"]
 
 [tool.ruff]
 line-length = 100
-select = ["E", "F", "W", "C90", "N"]
-ignore = ["E501"]
+lint.select = ["E", "F", "W", "C90", "N"]
+lint.ignore = ["E501"]
 extend-exclude = ["tests"]
 
 [tool.ruff.lint.pep8-naming]
@@ -59,6 +59,9 @@ profile = "black"
 python_version = "3.12"
 strict = true
 ignore_missing_imports = true
+mypy_path = ["src"]
+explicit_package_bases = true
+exclude = ["^tests/"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
