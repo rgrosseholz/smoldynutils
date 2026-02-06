@@ -30,7 +30,8 @@ dev = [
     "pytest (>=9.0.2,<10.0.0)",
     "pytest-cov (>=7.0.0,<8.0.0)",
     "black (>=26.1.0,<27.0.0)",
-    "pre-commit (>=4.5.1,<5.0.0)"
+    "pre-commit (>=4.5.1,<5.0.0)",
+    "ruff (>=0.15.0,<0.16.0)"
 ]
 
 [tool.poetry]
@@ -39,6 +40,12 @@ packages = [{include = "smoldynutils", from = "src"}]
 [tool.black]
 line-length = 100
 target-version = ["py312"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "C90", "N"]
+ignore = ["E501"]
+extend-exclude = ["tests"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
