@@ -22,3 +22,12 @@ jobs:
 
       - name: Check formatting
         run: poetry run black --check .
+
+      - name: Run ruff linter
+        run: poetry run ruff check .
+
+      - name: Run isort (check)
+        run: poetry run isort --check-only 
+      
+      - name: Run mypy
+        run: poetry run mypy src
