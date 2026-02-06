@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from smoldynutils.utils import *
 
 
@@ -39,8 +40,8 @@ def test_brownian_error(D, t):
 
 
 def test_theoretical_msds():
-    assert theoretical_MSD(0, 0) == 0
-    assert theoretical_MSD(1, 1) == 4
+    assert theoretical_msd(0, 0) == 0
+    assert theoretical_msd(1, 1) == 4
 
-    assert theoretical_MSD_residue(0, 0, 0) == 0
-    assert theoretical_MSD_residue(1, 1, 1) == 5
+    assert theoretical_msd_residue(0, 0, 0) == 0
+    assert theoretical_msd_residue(1, 1, 1) == 5

@@ -1,7 +1,9 @@
-import numpy as np
-from smoldynutils.data_objects import Trajectory, TrajectorySet
-import pytest
 from typing import Any, cast
+
+import numpy as np
+import pytest
+
+from smoldynutils.data_objects import Trajectory, TrajectorySet
 
 
 def _get_arrays():

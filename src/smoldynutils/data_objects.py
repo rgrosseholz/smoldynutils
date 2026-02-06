@@ -1,7 +1,7 @@
-import numpy as np
 from dataclasses import dataclass
 from typing import Sequence, Union, overload
-import math
+
+import numpy as np
 
 
 @dataclass(frozen=True, slots=True)
@@ -66,7 +66,7 @@ class Trajectory:
 
         return NotImplemented
 
-    def __getitem__(self, i: int):
+    def __getitem__(self, i: int) -> tuple[int, float, float, float, int]:
         return (
             self.serialnumber,
             self.t[i],
@@ -102,7 +102,7 @@ class TrajectorySet:
         """
         return len(self.trajectories)
 
-    def __getitem__(self, key: int):
+    def __getitem__(self, key: int) -> Trajectory:
         """Return trajectory by index.
 
         Args:

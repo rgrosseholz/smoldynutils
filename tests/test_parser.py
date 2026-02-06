@@ -1,5 +1,6 @@
-import pytest
 import numpy as np
+import pytest
+
 from smoldynutils.parsing import SmoldynParser
 
 sample_smoldyn_file = (

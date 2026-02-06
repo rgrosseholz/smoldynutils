@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+
 import numpy as np
+import numpy.typing as npt
 
 from smoldynutils.data_objects import Trajectory, TrajectorySet
 
@@ -17,12 +19,11 @@ class SmoldynParser:
 
 def parse_smoldyn_molpos_fixed_grid(
     path: str,
-    *,
     delimiter: str = ",",
-    dtype_xy=np.float32,
-    dtype_t=np.float32,
-    dtype_species=np.uint16,
-    dtype_serialnum=np.uint32,
+    dtype_xy: npt.DTypeLike = np.float32,
+    dtype_t: npt.DTypeLike = np.float32,
+    dtype_species: npt.DTypeLike = np.uint16,
+    dtype_serialnum: npt.DTypeLike = np.uint32,
 ) -> TrajectorySet:
     """Parser based on numpy loadtxt assuming equal size of all trajectories.
 
