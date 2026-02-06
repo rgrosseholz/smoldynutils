@@ -54,6 +54,7 @@ ignore-names = ["D", "MSD"]
 
 [tool.isort]
 profile = "black"
+src_paths = ["src", "tests"]
 
 [tool.mypy]
 python_version = "3.12"
