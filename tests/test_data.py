@@ -41,7 +41,7 @@ def test_raises_errors():
 
 def test_trajectory_set_init():
     t, x, y, species = _get_arrays()
-    traj = Trajectory(1, x, y, t, species)
+    traj = Trajectory(1, t, x, y, species)
     trajs = TrajectorySet.from_list([traj] * 5)
     assert len(trajs) == 5
 
@@ -51,7 +51,7 @@ def test_trajectory_set_init():
 
 def test_trajectory_addition():
     t, x, y, species = _get_arrays()
-    traj = Trajectory(1, x, y, t, species)
+    traj = Trajectory(1, t, x, y, species)
     trajs = TrajectorySet.from_list([traj] * 5)
     added_trajs1 = trajs + traj
     assert len(added_trajs1) == 6
