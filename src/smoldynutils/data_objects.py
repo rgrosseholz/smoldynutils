@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Sequence, Union, overload
+from typing import Iterator, Sequence, Union, overload
 
 import numpy as np
 
@@ -132,3 +132,11 @@ class TrajectorySet:
         if isinstance(other, Trajectory):
             return TrajectorySet(self.trajectories + (other,))
         return NotImplemented
+
+    def __iter__(self) -> Iterator[Trajectory]:
+        """Iterate over trajectories
+
+        Yields:
+            Trajectory: Trajectorie object
+        """
+        return iter(self.trajectories)
