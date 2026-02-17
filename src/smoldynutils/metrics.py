@@ -1,6 +1,8 @@
 import numpy as np
+from scipy.optimize import curve_fit
 
 from smoldynutils.data_objects import Trajectory
+from smoldynutils.utils import theoretical_msd, theoretical_msd_residue
 
 
 def calc_displacements(traj_values: np.ndarray, lag: int = 1) -> np.ndarray:
@@ -87,5 +89,24 @@ def calc_sq_displacement_from_zero(traj_values: np.ndarray) -> np.ndarray:
     return (traj_values - traj_values[0]) ** 2
 
 
-def calc_combined_msd(msds: tuple[np.ndarray, np.ndarray]) -> float:
-    return NotImplemented
+def calc_combined_msd(msds: tuple[np.ndarray, np.ndarray]) -> np.ndarray:
+    return np.array(msds[0] + msds[1])
+
+
+def estimate_diffcoff(
+    msds: np.ndarray, timepoints: np.ndarray, add_epsilon: bool = False, return_full: bool = False
+) -> np.ndarray:
+
+    if len(timepoints) < 2 and add_epsilon is True:
+        UserWarning(
+            "Cannot fit with epsilon if only one timelag given. Setting add_epsilon to False."
+        )
+        add_epsilon = False
+    if add_epsilon is True:
+        line_fit = curve_fit(theoretical_msd_residue, timepoints, msds)
+    else:
+        line_fit = curve_fit(theoretical_msd, timepoints, msds)
+    if return_full:
+        return line_fit
+    else:
+        return line_fit[0][0]
