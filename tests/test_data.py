@@ -1,3 +1,4 @@
+import warnings
 from typing import Any, cast
 
 import numpy as np
@@ -59,3 +60,45 @@ def test_trajectory_addition():
     assert len(added_trajs2) == 10
     with pytest.raises(TypeError):
         added_trajs3 = trajs + cast(Any, 5)
+
+
+def test_trajectory_iter():
+    t, x, y, species = _get_arrays()
+    traj = Trajectory(1, t, x, y, species)
+    trajs = TrajectorySet.from_list([traj] * 5)
+    trajs = trajs + Trajectory(2, t, x, y, species)
+    for i, traj in enumerate(trajs):
+        if i + 1 < len(trajs):
+            assert traj.serialnumber == 1
+        else:
+            assert traj.serialnumber == 2
+
+
+def test_raises_jump_warning():
+    t, _, y, species = _get_arrays()
+    x = np.array([0, 2, 4, 0])
+    t = np.append(t, 4)
+    y = np.append(y, 0.2)
+    species = np.append(species, 1)
+    with pytest.warns(UserWarning, match="Large jumps in trajectory 1 detected."):
+        traj = Trajectory(1, t, x, y, species)
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        # traj = Trajectory(1, t, x, y, species)
+        msg = warnings.formatwarning("hello", UserWarning, "file.py", 123)
+        assert msg == "Warning: hello\n"
+
+
+def test_trajset_serialnums():
+    t, x, y, species = _get_arrays()
+    traj_list = [Trajectory(n, t, x, y, species) for n in range(1, 5)]
+    trajs = TrajectorySet.from_list(traj_list)
+    np.testing.assert_equal(
+        trajs.serialnums,
+        [
+            1,
+            2,
+            3,
+            4,
+        ],
+    )
