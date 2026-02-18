@@ -3,3 +3,4 @@ dist/
 *pyc
 .coverage
 __pycache__
+playground.py
