@@ -96,6 +96,19 @@ def calc_combined_msd(msds: tuple[np.ndarray, np.ndarray]) -> np.ndarray:
 def estimate_diffcoff(
     msds: np.ndarray, timepoints: np.ndarray, add_epsilon: bool = False, return_full: bool = False
 ) -> np.ndarray:
+    """Estimates diffusion coefficient from MSD.
+
+    Fitted equation is MSD = 4*D*t
+
+    Args:
+        msds (np.ndarray): Array of MSD values
+        timepoints (np.ndarray): Array of timelag or time values
+        add_epsilon (bool, optional): Use equation MSD = 4*D*t + epsilon for fitting. Defaults to False.
+        return_full (bool, optional): Return full information about curve fitting. Defaults to False.
+
+    Returns:
+        np.ndarray: _description_
+    """
 
     if len(timepoints) < 2 and add_epsilon is True:
         UserWarning(
