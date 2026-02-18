@@ -1,5 +1,6 @@
+import warnings
 from dataclasses import dataclass
-from typing import Iterator, Sequence, Union, overload
+from typing import Iterator, Optional, Sequence, Type, Union, overload
 
 import numpy as np
 
@@ -29,6 +30,28 @@ class Trajectory:
             raise ValueError("t, x, y, species must be 1D arrays")
         if not np.issubdtype(self.species.dtype, np.integer):
             raise TypeError("Species must be integer-coded")
+        self._check_jumps(self.x)
+        self._check_jumps(self.y)
+
+    def _check_jumps(self, positions: np.ndarray) -> None:
+        jump_sensitivity = 0.5
+        max_pos = np.max(np.abs(positions))
+        forward_diff = np.diff(positions)
+        upper_jumps = forward_diff < jump_sensitivity * max_pos * -1
+        lower_jumps = forward_diff > jump_sensitivity * max_pos
+
+        def user_format_warning(
+            message: Warning | str,
+            category: Type[Warning],
+            filename: str,
+            lineno: int,
+            line: Optional[str] = None,
+        ) -> str:
+            return f"Warning: {message}\n"
+
+        if (upper_jumps + lower_jumps).sum() != 0:
+            warnings.formatwarning = user_format_warning
+            warnings.warn(f"Large jumps in trajectory {self.serialnumber} detected.", UserWarning)
 
     def __len__(self) -> int:
         """Returns number of points in trajectory
@@ -74,6 +97,22 @@ class Trajectory:
             self.y[i],
             self.species[i],
         )
+
+    @staticmethod
+    def adjust_for_periodic_boundaries(
+        position: np.ndarray, min_pos: float, max_pos: float
+    ) -> np.ndarray:
+        size = max_pos - min_pos
+        half_delta = 0.5 * (size)
+        forward_diff = np.diff(position, prepend=position[0])
+        upper_jumps = forward_diff < -1 * half_delta
+        lower_jumps = forward_diff > half_delta
+        if (upper_jumps + lower_jumps).sum() == 0:
+            return position
+        upper_jumps_cumsum = upper_jumps.cumsum() * size
+        lower_jumps_cumsum = lower_jumps.cumsum() * size * -1
+        position_mask = upper_jumps_cumsum + lower_jumps_cumsum
+        return position + position_mask
 
 
 @dataclass(frozen=True, slots=True)
@@ -140,3 +179,12 @@ class TrajectorySet:
             Trajectory: Trajectorie object
         """
         return iter(self.trajectories)
+
+    @property
+    def serialnums(self) -> np.ndarray:
+        serialnums = np.zeros(len(self))
+        for index, traj in enumerate(self):
+            serialnums[index] = traj.serialnumber
+        return serialnums
+
+    # TODO: Methods .t, .x, ... that return array of values of all trajectories
