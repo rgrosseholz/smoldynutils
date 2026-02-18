@@ -58,7 +58,7 @@ def test_xy_displacement(traj, unmoving_traj):
     assert np.isclose(x_displ, np.array([2 * expected_x_displacement] * (len(traj.x) - 2))).all()
     assert np.isclose(y_displ, np.array([2 * expected_y_displacement] * (len(traj.x) - 2))).all()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Timelag is bigger than number of datapoints in x or y"):
         calc_xy_displacement(traj, lag=4)
 
     x_displ, y_displ = calc_xy_displacement(unmoving_traj)
@@ -107,7 +107,10 @@ def test_estimate_diffcoff(traj, unmoving_traj):
     x_msd, y_msd = calc_xy_msd(xy_disp)
     msd = calc_combined_msd((x_msd, y_msd))
     with pytest.warns(OptimizeWarning):
-        np.testing.assert_almost_equal(estimate_diffcoff(msd, np.array([1])), 0)
+        d = estimate_diffcoff(msd, np.array([1]))
+        np.testing.assert_almost_equal(d, 0)
+        full_d = estimate_diffcoff(msd, np.array([1]), return_full=True)
+        np.testing.assert_equal(len(full_d), 2)
     xy_disp = calc_xy_displacement(traj)
     msds = calc_xy_msd(xy_disp)
     msd = calc_combined_msd(msds)
@@ -115,3 +118,7 @@ def test_estimate_diffcoff(traj, unmoving_traj):
         np.testing.assert_almost_equal(estimate_diffcoff(msd, np.array([1])), expected_D)
     with pytest.warns(UserWarning):
         estimate_diffcoff(msd, np.array([1]), add_epsilon=True)
+
+    np.testing.assert_equal(
+        estimate_diffcoff(np.array([0, 1, 2]), np.array([1, 2, 3]), add_epsilon=True), 0.25
+    )
