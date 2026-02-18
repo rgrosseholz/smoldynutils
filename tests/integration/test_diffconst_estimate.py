@@ -1,6 +1,10 @@
+import warnings
+
 import numpy as np
 import pytest
 
+import smoldynutils.data_objects
+from smoldynutils.data_objects import Trajectory, TrajectorySet
 from smoldynutils.metrics import *
 
 expected_d = 0.5
@@ -54,7 +58,8 @@ def time_traj():
     return Trajectory(1, x=x, y=y, t=t, species=species)
 
 
-def test_dummy_trajectory_timelag(tau_traj):
+@pytest.mark.filterwarnings(r"ignore: Large jumps in trajectory.*:UserWarning")
+def test_tau_dummy_trajectory(tau_traj):
     data_dict = {}
     time_lags = np.array([1, 2, 3])
     for time_lag in time_lags:
@@ -67,10 +72,28 @@ def test_dummy_trajectory_timelag(tau_traj):
     np.testing.assert_almost_equal(d, expected_d)
 
 
-def test_dummy_trajectory(time_traj):
+@pytest.mark.filterwarnings(r"ignore: Large jumps in trajectory.*:UserWarning")
+def test_t_dummy_trajectory(time_traj):
     traj = time_traj
     x_sqdisplacement = calc_sq_displacement_from_zero(traj.x)
     y_sqdisplacement = calc_sq_displacement_from_zero(traj.y)
     msd = calc_combined_msd((x_sqdisplacement, y_sqdisplacement))
     d = estimate_diffcoff(msd, traj.t)
     np.testing.assert_almost_equal(d, expected_d)
+
+
+@pytest.mark.filterwarnings(r"ignore: Large jumps in trajectory.*:UserWarning")
+def test_tau_dummy_mult_trajectories(tau_traj):
+    trajs = TrajectorySet.from_list([tau_traj, tau_traj, tau_traj])
+    time_lags = np.array([1, 2, 3])
+    ds = {}
+    for index, traj in enumerate(trajs):
+        msd_dict = {}
+        for time_lag in time_lags:
+            xy_displacement = calc_xy_displacement(traj, time_lag)
+            xy_msd = calc_xy_msd(xy_displacement)
+            msd = calc_combined_msd(xy_msd)
+            msd_dict[time_lag] = msd
+        msds = np.array(list(msd_dict.values()))
+        ds[index] = estimate_diffcoff(msds, time_lags)
+    np.testing.assert_almost_equal(np.sum(list(ds.values())), len(trajs) * expected_d)
