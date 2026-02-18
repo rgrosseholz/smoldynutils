@@ -39,7 +39,7 @@ def calc_xy_displacement(traj: Trajectory, lag: int = 1) -> tuple[np.ndarray, np
     Returns:
         tuple[np.ndarray, np.ndarray]: Timelag displacements in x and y direction
     """
-    if lag > len(traj.x) or lag > len(traj.y):
+    if lag > len(traj.x) - 1 or lag > len(traj.y) - 1:
         raise ValueError("Timelag is bigger than number of datapoints in x or y")
     x_displacement = calc_displacements(traj.x, lag)
     y_displacement = calc_displacements(traj.y, lag)
