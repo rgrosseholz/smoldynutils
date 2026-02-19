@@ -19,7 +19,7 @@ class SmoldynParser:
 
     def parse_fixed_grid(
         self,
-        dtype_xy: npt.DTypeLike = np.float32,
+        dtype_xy: npt.DTypeLike = np.float64,
         dtype_t: npt.DTypeLike = np.float32,
         dtype_species: npt.DTypeLike = np.uint16,
         dtype_serialnum: npt.DTypeLike = np.uint32,

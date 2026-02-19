@@ -30,8 +30,8 @@ def tau_traj():
 
     s = np.sqrt(2)
     t = np.array([0, 1, 2, 3], dtype=np.float32)
-    x = np.array([0, s, s + 1, s + 1], dtype=np.float32)
-    y = np.array([0, 0, -1, s - 1], dtype=np.float32)
+    x = np.array([0, s, s + 1, s + 1], dtype=np.float64)
+    y = np.array([0, 0, -1, s - 1], dtype=np.float64)
     species = np.array([1, 1, 1, 1], dtype=np.uint8)
     return Trajectory(1, x=x, y=y, t=t, species=species)
 
@@ -67,6 +67,7 @@ def test_tau_dummy_trajectory(tau_traj):
         xy_msd = calc_xy_msd(xy_displacement)
         msd = calc_combined_msd(xy_msd)
         data_dict[time_lag] = msd
+        np.testing.assert_almost_equal(msd, time_lag * 4 * expected_d)
     msds = np.array(list(data_dict.values()))
     d = estimate_diffcoff(msds, time_lags)
     np.testing.assert_almost_equal(d, expected_d)
@@ -78,6 +79,7 @@ def test_t_dummy_trajectory(time_traj):
     x_sqdisplacement = calc_sq_displacement_from_zero(traj.x)
     y_sqdisplacement = calc_sq_displacement_from_zero(traj.y)
     msd = calc_combined_msd((x_sqdisplacement, y_sqdisplacement))
+    np.testing.assert_array_almost_equal(msd, [t * expected_d * 4 for t in traj.t])
     d = estimate_diffcoff(msd, traj.t)
     np.testing.assert_almost_equal(d, expected_d)
 
@@ -94,6 +96,7 @@ def test_tau_dummy_mult_trajectories(tau_traj):
             xy_msd = calc_xy_msd(xy_displacement)
             msd = calc_combined_msd(xy_msd)
             msd_dict[time_lag] = msd
+            np.testing.assert_almost_equal(msd, time_lag * 4 * expected_d)
         msds = np.array(list(msd_dict.values()))
         ds[index] = estimate_diffcoff(msds, time_lags)
     np.testing.assert_almost_equal(np.sum(list(ds.values())), len(trajs) * expected_d)
