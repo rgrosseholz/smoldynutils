@@ -1,4 +1,4 @@
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 import numpy as np
 from matplotlib.axes import Axes
@@ -75,12 +75,28 @@ def plot_trajectories(trajs: TrajectorySet, ax: Axes, title: str = "Title") -> A
     """
 
     for traj in trajs:
-        plot_trajectorie(traj, ax, title)
+        ax = plot_trajectorie(traj, ax, title)
     return ax
 
 
-def plot_msd(msd: Sequence[float], ax: Axes, title: str = "Title") -> Axes:
-    ax.plot(msd, color="blue")
+def plot_msd(
+    msd: np.ndarray,
+    ax: Axes,
+    time: Optional[np.ndarray] = None,
+    title: str = "Title",
+    color: Optional[str] = None,
+) -> Axes:
+    if time is None:
+        time = np.arange(len(msd))
+    if color is None:
+        color = "blue"
+    if len(msd.shape) > 2:
+        raise ValueError("Input MSD array is > 2D")
+    if not len(msd) == len(time):
+        msd = msd.T
+        if not len(msd) == len(time):
+            raise ValueError("Input MSD array and time array have no shape in common.")
+    ax.plot(time, msd, color=color)
     ax.set_xlabel("time")
     ax.set_ylabel("msd")
     ax.set_title(title)
@@ -88,7 +104,11 @@ def plot_msd(msd: Sequence[float], ax: Axes, title: str = "Title") -> Axes:
 
 
 def plot_msd_comparison(
-    msd: np.ndarray, theoretical_msd: np.ndarray, ax: Axes, title: str = "Title"
+    msd: np.ndarray,
+    theoretical_msd: np.ndarray,
+    ax: Axes,
+    time: Optional[np.ndarray] = None,
+    title: str = "Title",
 ) -> Axes:
     """Lineplot showing the calculated MSD values vs the theoretical expectation.
 
@@ -101,16 +121,21 @@ def plot_msd_comparison(
     Returns:
         Axes: Axis that contains the msd comparison.
     """
-
-    ax = plot_msd(msd, ax)
-    ax.plot(theoretical_msd, color="red")
+    if len(msd) != len(theoretical_msd):
+        raise ValueError(
+            f"Mismatch in MSD arrays: input array length={len(msd)}, theoretical array length={len(theoretical_msd)}"
+        )
+    if time is None:
+        time = np.arange(len(msd))
+    ax = plot_msd(msd, ax, time=time)
+    ax = plot_msd(theoretical_msd, ax, time=time, color="red")
     ax.set_xlabel("time")
     ax.set_ylabel("msd")
     ax.set_title(title)
     return ax
 
 
-def plot_diffconst_estimation(
+def plot_diffconst_hist(
     diffcoffs: np.ndarray, reference_diffcoff: float, ax: Axes, title: str = "Title"
 ) -> Axes:
 
