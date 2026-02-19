@@ -71,12 +71,13 @@ def test_plot_msd(plot):
 
     plot_msd(msd=multi_msd, ax=ax)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Input MSD array is > 2D"):
         array_3d = np.zeros((2, 2, 2))
         plot_msd(array_3d, ax)
 
+    with pytest.raises(ValueError, match="Input MSD array and time array have no shape in common."):
         array_no_ax_in_common = np.zeros((5, 7))
-        plot_msd(array_no_ax_in_common, ax)
+        plot_msd(array_no_ax_in_common, ax, time=vals)
 
 
 def test_plot_msd_compare(plot):
