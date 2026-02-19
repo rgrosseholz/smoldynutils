@@ -8,10 +8,6 @@ from smoldynutils.plots import *
 def test_plot_gauss_comparison():
     disp = np.random.randn(10)
     gauss = np.random.randn(10)
-
-    with pytest.raises(ValueError):
-        plot_gauss_comparison(disp, gauss, None)
-
     fig, ax = plt.subplots()
     initial_patches = len(ax.patches)
     returned = plot_gauss_comparison(disp, gauss, ax, title="Testtitle")

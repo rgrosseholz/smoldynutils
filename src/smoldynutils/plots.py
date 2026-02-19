@@ -28,8 +28,6 @@ def plot_gauss_comparison(
     Returns:
         Axes: Axis that contains the histogram.
     """
-    if ax is None:
-        raise ValueError("No axis to plot onto provided.")
     ax.hist(displacement, bins=bins, density=True)
     ax.hist(gauss_vals, bins=bins, density=True)
     ax.set_xlabel("Δx")
@@ -52,8 +50,7 @@ def plot_trajectorie(traj: Trajectory, ax: Axes, title: str = "Title") -> Axes:
     Returns:
         Axes: Axis that contains the xy plot
     """
-    if ax is None:
-        raise ValueError("No axis to plot onto provided.")
+
     ax.plot(traj.x, traj.y, color="black")
     ax.scatter(traj.x, traj.y, c=traj.t)
     ax.set_xlabel("x")
@@ -76,8 +73,7 @@ def plot_trajectories(trajs: TrajectorySet, ax: Axes, title: str = "Title") -> A
     Returns:
         Axes: Axis that contains the xy plot
     """
-    if ax is None:
-        raise ValueError("No axis to plot onto provided.")
+
     for traj in trajs:
         plot_trajectorie(traj, ax, title)
     return ax
@@ -102,14 +98,10 @@ def plot_msd_comparison(
         ax (Axes): Axis onto which will be plotted
         title (str, optional): Figure title. Defaults to "Title".
 
-    Raises:
-        ValueError: No axis to plot onto provided.
-
     Returns:
         Axes: Axis that contains the msd comparison.
     """
-    if ax is None:
-        raise ValueError("No axis to plot onto provided.")
+
     ax = plot_msd(msd, ax)
     ax.plot(theoretical_msd, color="red")
     ax.set_xlabel("time")
@@ -121,8 +113,7 @@ def plot_msd_comparison(
 def plot_diffconst_estimation(
     diffcoffs: np.ndarray, reference_diffcoff: float, ax: Axes, title: str = "Title"
 ) -> Axes:
-    if ax is None:
-        raise ValueError("No axis to plot onto provided.")
+
     lower_bound = min(diffcoffs)
     upper_bound = max(diffcoffs)
 
