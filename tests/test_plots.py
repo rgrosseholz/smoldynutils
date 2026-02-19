@@ -69,6 +69,15 @@ def test_plot_msd(plot):
     assert len(returned.lines) > one_msd_lines
     assert returned.get_title() == "test"
 
+    plot_msd(msd=multi_msd, ax=ax)
+
+    with pytest.raises(ValueError):
+        array_3d = np.zeros((2, 2, 2))
+        plot_msd(array_3d, ax)
+
+        array_no_ax_in_common = np.zeros((5, 7))
+        plot_msd(array_no_ax_in_common, ax)
+
 
 def test_plot_msd_compare(plot):
     fig, ax = plot
@@ -82,6 +91,11 @@ def test_plot_msd_compare(plot):
     assert len(returned.lines) > initial_lines
     assert len(returned.lines) > msd_lines
     assert returned.get_title() == "test"
+
+    plot_msd_comparison(vals, vals, ax)
+
+    with pytest.raises(ValueError):
+        plot_msd_comparison(vals, np.linspace(0, 10, 5), ax)
 
 
 def test_plot_diffconst_hist(plot):
