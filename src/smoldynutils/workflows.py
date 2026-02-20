@@ -13,6 +13,15 @@ from smoldynutils.metrics import (
 
 
 def estimate_timelag_msd_from_traj(traj: Trajectory, timelags: Sequence[int]) -> Dict[int, float]:
+    """Calculates MSD(timelag) for trajectory.
+
+    Args:
+        traj (Trajectory): Trajectory for which MSD will be calculated
+        timelags (Sequence[int]): Sequence of timelags that will be used
+
+    Returns:
+        Dict[int, float]: Keys are timelags, values the corresponding MSD
+    """
     msd_dict = {}
     for timelag in timelags:
         xy_displacement = calc_xy_displacement(traj, timelag)
@@ -25,6 +34,15 @@ def estimate_timelag_msd_from_traj(traj: Trajectory, timelags: Sequence[int]) ->
 def estimate_timelag_diffcoff_from_trajset(
     trajs: TrajectorySet, timelags: Sequence[int] = (1, 2, 3, 4)
 ) -> Dict[int, float]:
+    """Calculates observed diffusion coefficient based on MSD(timelag) for set of trajectories
+
+    Args:
+        trajs (TrajectorySet): Set of trajectories for which diff coff will be calculated
+        timelags (Sequence[int], optional): Sequence of timelags for MSD calculation. Defaults to (1, 2, 3, 4).
+
+    Returns:
+        Dict[int, float]: Keys are trajectory serialnums or index, values the corresponding diff coff.
+    """
     diffcoffs = {}
     use_index_for_dict = False
     timelag_array = np.array(timelags)
@@ -41,6 +59,14 @@ def estimate_timelag_diffcoff_from_trajset(
 
 
 def estimate_time_msd_from_traj(traj: Trajectory) -> np.ndarray:
+    """Calculates MSD(time) for trajectory.
+
+    Args:
+        traj (Trajectory): Trajectory for which MSD will be calculated
+
+    Returns:
+        np.ndarray: Calculated MSDs.
+    """
     x_sqdisplacement = calc_sq_displacement_from_zero(traj.x)
     y_sqdisplacement = calc_sq_displacement_from_zero(traj.y)
     msd = calc_combined_msd((x_sqdisplacement, y_sqdisplacement))
@@ -48,6 +74,14 @@ def estimate_time_msd_from_traj(traj: Trajectory) -> np.ndarray:
 
 
 def estimate_time_diffcoff_from_trajset(trajs: TrajectorySet) -> Dict[int, float]:
+    """Estimates diffusion coefficient of set of Trajectories based on MSD(time)
+
+    Args:
+        trajs (TrajectorySet): Set of trajectories for which diffusion coefficient will be estimated.
+
+    Returns:
+        Dict[int, float]: Keys are serialnums or index, values are diffcoffs
+    """
     diffcoffs = {}
     use_index_for_dict = False
     if len(np.unique(trajs.serialnums)) < len(trajs):
