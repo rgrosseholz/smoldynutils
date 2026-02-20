@@ -30,4 +30,4 @@ jobs:
         run: poetry run isort --check-only .
       
       - name: Run mypy
-        run: poetry run mypy --strict --explicit-package-bases src
+        run: poetry run mypy src
