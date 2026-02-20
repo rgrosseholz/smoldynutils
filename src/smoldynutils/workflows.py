@@ -27,7 +27,7 @@ def estimate_timelag_msd_from_traj(traj: Trajectory, timelags: Sequence[int]) ->
         xy_displacement = calc_xy_displacement(traj, timelag)
         xy_msd = calc_xy_msd(xy_displacement)
         msd = calc_combined_msd(xy_msd)
-        msd_dict[timelag] = msd
+        msd_dict[timelag] = float(msd)
     return msd_dict
 
 

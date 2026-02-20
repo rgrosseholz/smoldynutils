@@ -1,14 +1,19 @@
+import warnings
+from typing import cast
+
 import numpy as np
 from scipy.optimize import curve_fit
 
 from smoldynutils.data_objects import Trajectory
 from smoldynutils.utils import theoretical_msd, theoretical_msd_residue
 
+FloatArray = np.typing.NDArray[np.floating]
 
-def calc_displacements(traj_values: np.ndarray, lag: int = 1) -> np.ndarray:
+
+def calc_displacements(traj_values: FloatArray, lag: int = 1) -> FloatArray:
     """Calculates the displacement depending on time lag.
 
-    Eq: x(t) - x(t+lag)
+    Eq: x(t+lag) - x(t)
 
     Args:
         traj_values (np.ndarray): x or y values
@@ -77,7 +82,7 @@ def calc_xy_msd(displacements: tuple[np.ndarray, np.ndarray]) -> tuple[np.ndarra
     return (x_msd, y_msd)
 
 
-def calc_sq_displacement_from_zero(traj_values: np.ndarray) -> np.ndarray:
+def calc_sq_displacement_from_zero(traj_values: FloatArray) -> FloatArray:
     """Calculates displacement relative to start position.
 
     Args:
@@ -86,16 +91,17 @@ def calc_sq_displacement_from_zero(traj_values: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Displacement from start position.
     """
-    return (traj_values - traj_values[0]) ** 2
+    x0 = float(traj_values[0])
+    return (traj_values - x0) ** 2
 
 
 def calc_combined_msd(msds: tuple[np.ndarray, np.ndarray]) -> np.ndarray:
     return np.array(msds[0] + msds[1])
 
 
-def estimate_diffcoff(
-    msds: np.ndarray, timepoints: np.ndarray, add_epsilon: bool = False, return_full: bool = False
-) -> np.ndarray:
+def estimate_diffcoff_fullinfo(
+    msds: np.ndarray, timepoints: np.ndarray, add_epsilon: bool = False
+) -> tuple[FloatArray, FloatArray]:
     """Estimates diffusion coefficient from MSD.
 
     Fitted equation is MSD = 4*D*t
@@ -111,15 +117,31 @@ def estimate_diffcoff(
     """
 
     if len(timepoints) < 2 and add_epsilon is True:
-        UserWarning(
-            "Cannot fit with epsilon if only one timelag given. Setting add_epsilon to False."
+        warnings.warn(
+            "Cannot fit with epsilon if only one timelag given. Setting add_epsilon to False.",
+            UserWarning,
         )
         add_epsilon = False
     if add_epsilon is True:
         line_fit = curve_fit(theoretical_msd_residue, timepoints, msds)
     else:
         line_fit = curve_fit(theoretical_msd, timepoints, msds)
-    if return_full:
-        return line_fit
-    else:
-        return line_fit[0][0]
+    return cast(tuple[FloatArray, FloatArray], line_fit)
+
+
+def estimate_diffcoff(msds: np.ndarray, timepoints: np.ndarray, add_epsilon: bool = False) -> float:
+    """Estimates diffusion coefficient from MSD.
+
+    Fitted equation is MSD = 4*D*t
+
+    Args:
+        msds (np.ndarray): Array of MSD values
+        timepoints (np.ndarray): Array of timelag or time values
+        add_epsilon (bool, optional): Use equation MSD = 4*D*t + epsilon for fitting. Defaults to False.
+        return_full (bool, optional): Return full information about curve fitting. Defaults to False.
+
+    Returns:
+        np.ndarray: _description_
+    """
+    popt, _ = estimate_diffcoff_fullinfo(msds, timepoints, add_epsilon)
+    return float(popt[0])

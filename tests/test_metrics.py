@@ -109,8 +109,6 @@ def test_estimate_diffcoff(traj, unmoving_traj):
     with pytest.warns(OptimizeWarning):
         d = estimate_diffcoff(msd, np.array([1]))
         np.testing.assert_almost_equal(d, 0)
-        full_d = estimate_diffcoff(msd, np.array([1]), return_full=True)
-        np.testing.assert_equal(len(full_d), 2)
     xy_disp = calc_xy_displacement(traj)
     msds = calc_xy_msd(xy_disp)
     msd = calc_combined_msd(msds)
@@ -122,3 +120,10 @@ def test_estimate_diffcoff(traj, unmoving_traj):
     np.testing.assert_equal(
         estimate_diffcoff(np.array([0, 1, 2]), np.array([1, 2, 3]), add_epsilon=True), 0.25
     )
+
+
+def test_estimate_diffcoff_full_return():
+    msd = np.zeros((1))
+    with pytest.warns(OptimizeWarning):
+        full_d = estimate_diffcoff_fullinfo(msd, np.array([1]))
+        assert len(full_d) == 2

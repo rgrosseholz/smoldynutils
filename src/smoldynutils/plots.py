@@ -141,8 +141,8 @@ def plot_diffconst_hist(
 
     lower_bound = min(diffcoffs)
     upper_bound = max(diffcoffs)
-
-    ax.hist(diffcoffs, bins=np.geomspace(lower_bound, upper_bound, 20))
+    bins = list(np.geomspace(lower_bound, upper_bound, 20))
+    ax.hist(diffcoffs, bins=bins)
     ax.set_xscale("log")
 
     ax.axvline(float(np.mean(diffcoffs)))
