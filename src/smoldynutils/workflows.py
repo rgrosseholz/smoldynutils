@@ -32,7 +32,7 @@ def estimate_timelag_msd_from_traj(traj: Trajectory, timelags: Sequence[int]) ->
 
 
 def estimate_timelag_diffcoff_from_trajset(
-    trajs: TrajectorySet, timelags: Sequence[int] = (1, 2, 3, 4)
+    trajs: TrajectorySet, timelags: Sequence[int] = (1, 2, 3, 4), add_epsilon: bool = False
 ) -> Dict[int, float]:
     """Calculates observed diffusion coefficient based on MSD(timelag) for set of trajectories
 
@@ -52,9 +52,11 @@ def estimate_timelag_diffcoff_from_trajset(
         msd_dict = estimate_timelag_msd_from_traj(traj, timelags)
         msds = np.array(list(msd_dict.values()))
         if use_index_for_dict is True:
-            diffcoffs[index] = estimate_diffcoff(msds, timelag_array)
+            diffcoffs[index] = estimate_diffcoff(msds, timelag_array, add_epsilon=add_epsilon)
         else:
-            diffcoffs[traj.serialnumber] = estimate_diffcoff(msds, timelag_array)
+            diffcoffs[traj.serialnumber] = estimate_diffcoff(
+                msds, timelag_array, add_epsilon=add_epsilon
+            )
     return diffcoffs
 
 
