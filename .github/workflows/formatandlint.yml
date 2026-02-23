@@ -20,14 +20,5 @@ jobs:
       - name: Install deps
         run: poetry install
 
-      - name: Check formatting
-        run: poetry run black --check .
-
-      - name: Run ruff linter
-        run: poetry run ruff check .
-
-      - name: Run isort (check)
-        run: poetry run isort --check-only .
-      
-      - name: Run mypy
-        run: poetry run mypy src
+      - name: Run pre-commit
+        run: poetry run pre-commit run --all-files

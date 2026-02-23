@@ -1,22 +1,17 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
-    hooks:
-      - id: black
 
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.15.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.2
     hooks:
-      - id: ruff
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.5.1
+  - repo: local
     hooks:
       - id: mypy
-        args: ["--strict", "--explicit-package-bases"]
-        files: ^src/
+        name: mypy (poetry)
+        entry: poetry run mypy
+        language: system
+        args: ["src"]
+        pass_filenames: false
