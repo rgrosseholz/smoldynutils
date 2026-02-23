@@ -1,9 +1,13 @@
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence, Union, Dict
 
 import numpy as np
 from matplotlib.axes import Axes
 
 from smoldynutils.data_objects import Trajectory, TrajectorySet
+
+import seaborn as sns
+
+FloatArray = np.typing.NDArray[np.floating]
 
 
 def plot_gauss_comparison(
@@ -138,10 +142,21 @@ def plot_msd_comparison(
 def plot_diffconst_hist(
     diffcoffs: np.ndarray, reference_diffcoff: float, ax: Axes, title: str = "Title"
 ) -> Axes:
+    """Plots histogram of diffusion coefficients
+
+    Args:
+        diffcoffs (np.ndarray): Array of diffusion coefficients
+        reference_diffcoff (float): Expected diffusion coefficient
+        ax (Axes): Axes onto which will be plotted
+        title (str, optional): Plot title. Defaults to "Title".
+
+    Returns:
+        Axes: Axes with histogram
+    """
 
     lower_bound = min(diffcoffs)
     upper_bound = max(diffcoffs)
-    bins = list(np.geomspace(lower_bound, upper_bound, 20))
+    bins = list(np.linspace(lower_bound, upper_bound, 20))
     ax.hist(diffcoffs, bins=bins)
     ax.set_xscale("log")
 
@@ -151,5 +166,55 @@ def plot_diffconst_hist(
 
     ax.set_xlabel("Diffusion coefficient")
     ax.set_ylabel("Count")
+    ax.set_title(title)
+    return ax
+
+
+def plot_violin_with_mean(
+    diffcoff: Dict[float, FloatArray],
+    reference_diffcoffs: Sequence[float],
+    permeability: Sequence[float],
+    ax: Axes,
+    title: str = "Title",
+) -> Axes:
+    """Generates a violinplot of diffcoff vs permeability.
+
+    Args:
+        diffcoff (Dict[float, FloatArray]): Permeability vs diffusion coefficients
+        reference_diffcoffs (Sequence[float]): Expected diffusion coefficients
+        permeability (Sequence[float]): Permeabilities for x axis
+        ax (Axes): Axes onto which will be plotted
+        title (str, optional): Title of plot. Defaults to "Title".
+
+    Raises:
+        ValueError: Number of entries in diffcoff does not match number of permeabilities
+
+    Returns:
+        Axes: Axis that contains violin plots
+    """
+    if not len(diffcoff.keys()) == len(permeability):
+        raise ValueError(
+            "Number of entries in diffcoff dict does not match number of permeabilites."
+        )
+    sns.violinplot(diffcoff, ax=ax, order=list(diffcoff.keys()), color="skyblue", inner=None)
+    mean_ds = [np.mean(vals) for vals in diffcoff.values()]
+    indices = np.arange(0, len(diffcoff.keys()))
+    ax.scatter(indices, mean_ds, color="black", marker="_", zorder=10, alpha=1, s=100)
+    ax.axhline(
+        reference_diffcoffs[0],
+        color="red",
+        linestyle="--",
+        linewidth=1,
+        label=f"WT D={reference_diffcoffs[0]}",
+    )
+    ax.axhline(
+        reference_diffcoffs[1],
+        color="blue",
+        linestyle=":",
+        linewidth=1,
+        label=f"PHSD D={reference_diffcoffs[1]}",
+    )
+    ax.set_xlabel("Permeability")
+    ax.set_ylabel("Diffusion coefficient")
     ax.set_title(title)
     return ax
