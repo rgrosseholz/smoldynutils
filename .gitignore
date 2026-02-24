@@ -4,3 +4,4 @@ dist/
 .coverage
 __pycache__
 playground.py
+tmp/
