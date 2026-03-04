@@ -6,6 +6,7 @@ from matplotlib.axes import Axes
 from smoldynutils.data_objects import Trajectory, TrajectorySet
 
 import seaborn as sns
+import scipy as scp
 
 FloatArray = np.typing.NDArray[np.floating]
 
@@ -171,7 +172,7 @@ def plot_diffconst_hist(
 
 
 def plot_violin_with_mean(
-    diffcoff: Dict[float, FloatArray],
+    permeability_to_diffcoffs: Dict[float, FloatArray],
     reference_diffcoffs: Sequence[float],
     permeability: Sequence[float],
     ax: Axes,
@@ -192,13 +193,19 @@ def plot_violin_with_mean(
     Returns:
         Axes: Axis that contains violin plots
     """
-    if not len(diffcoff.keys()) == len(permeability):
+    if not len(permeability_to_diffcoffs.keys()) == len(permeability):
         raise ValueError(
             "Number of entries in diffcoff dict does not match number of permeabilites."
         )
-    sns.violinplot(diffcoff, ax=ax, order=list(diffcoff.keys()), color="skyblue", inner=None)
-    mean_ds = [np.mean(vals) for vals in diffcoff.values()]
-    indices = np.arange(0, len(diffcoff.keys()))
+    sns.violinplot(
+        permeability_to_diffcoffs,
+        ax=ax,
+        order=list(permeability_to_diffcoffs.keys()),
+        color="skyblue",
+        inner=None,
+    )
+    mean_ds = [np.mean(vals) for vals in permeability_to_diffcoffs.values()]
+    indices = np.arange(0, len(permeability_to_diffcoffs.keys()))
     ax.scatter(indices, mean_ds, color="black", marker="_", zorder=10, alpha=1, s=100)
     ax.axhline(
         reference_diffcoffs[0],
@@ -216,5 +223,44 @@ def plot_violin_with_mean(
     )
     ax.set_xlabel("Permeability")
     ax.set_ylabel("Diffusion coefficient")
+    ax.set_title(title)
+    return ax
+
+
+def plot_qq_plot(diffcoffs: FloatArray, ax: Axes, title: str = "Title") -> Axes:
+    scp.stats.probplot(diffcoffs, plot=ax)
+    ax.set_title(title)
+    return ax
+
+
+def plot_mean_median(
+    permeability_to_diffcoffs: Dict[float, FloatArray],
+    reference_diffcoffs: Sequence[float],
+    ax: Axes,
+    title: str = "Title",
+) -> Axes:
+    means = []
+    medians = []
+    permeabilities = list(permeability_to_diffcoffs.keys())
+    for permeability in permeabilities:
+        diffcoffs = permeability_to_diffcoffs[permeability]
+        means.append(np.mean(diffcoffs))
+        medians.append(np.median(diffcoffs))
+    ax.plot(permeabilities, means, "bo")
+    ax.plot(permeabilities, medians, "bo")
+    ax.axhline(
+        reference_diffcoffs[0],
+        color="magenta",
+        linestyle="--",
+        linewidth=1,
+        label=f"WT D={reference_diffcoffs[0]}",
+    )
+    ax.axhline(
+        reference_diffcoffs[1],
+        color="yellow",
+        linestyle=":",
+        linewidth=1,
+        label=f"PHSD D={reference_diffcoffs[1]}",
+    )
     ax.set_title(title)
     return ax
