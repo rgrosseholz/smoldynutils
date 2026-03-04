@@ -110,3 +110,37 @@ def test_plot_diffconst_hist(plot):
     assert returned is ax
     assert len(returned.patches) > initial_patches
     assert returned.get_title() == "test"
+
+def test_plot_violin(plot):
+    fig, ax = plot
+    initial_patches = len(ax.patches)
+    vals = np.array([1., 2., 3.])
+    data_dict = {float(i): vals for i in range(3)}
+    returned = plot_violin_with_mean(data_dict, (1, 1), (1, 2, 3), ax, "test")
+    assert returned is ax
+    assert len(returned.collections) == 4 # three violinplots and the mean lines
+    assert returned.get_title() == "test"
+    assert len(returned.lines) == 2
+    with pytest.raises(ValueError):
+        returned = plot_violin_with_mean(data_dict, (1, 1), (1, 2), ax, "test")
+
+
+def test_plot_qqplot(plot):
+    fig, ax = plot
+    vals = np.array([0, 0, 0, 1, -1])
+    returned = plot_qq_plot(
+        diffcoffs=vals, ax=ax, title="test"
+    )
+    assert returned is ax
+    assert len(returned.lines) == 2
+    assert returned.get_title() == "test"
+
+def test_plot_stats(plot):
+    fig, ax = plot
+    vals = np.array([0, 0, 0, 1])
+    data_dict = {float(i): vals for i in range(3)}
+    returned = plot_mean_median(data_dict, (1, 1), ax, "test")
+    assert returned is ax
+    assert len(returned.lines) == 4 # 1 for median and mean and 2 for reference diffcoffs
+    assert returned.get_title() == "test"
+
