@@ -49,13 +49,15 @@ def estimate_timelag_diffcoff_from_trajset(
     if len(np.unique(trajs.serialnums)) < len(trajs):
         use_index_for_dict = True
     for index, traj in enumerate(trajs):
+        dt = traj.t[1] - traj.t[0]
+        timepoints = dt * timelag_array
         msd_dict = estimate_timelag_msd_from_traj(traj, timelags)
         msds = np.array(list(msd_dict.values()))
         if use_index_for_dict is True:
-            diffcoffs[index] = estimate_diffcoff(msds, timelag_array, add_epsilon=add_epsilon)
+            diffcoffs[index] = estimate_diffcoff(msds, timepoints, add_epsilon=add_epsilon)
         else:
             diffcoffs[traj.serialnumber] = estimate_diffcoff(
-                msds, timelag_array, add_epsilon=add_epsilon
+                msds, timepoints, add_epsilon=add_epsilon
             )
     return diffcoffs
 
