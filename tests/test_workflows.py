@@ -109,3 +109,18 @@ def test_estimate_time_diffcoff(time_traj):
     trajset = TrajectorySet.from_list(trajs)
     estimated_ds = estimate_time_diffcoff_from_trajset(trajset)
     npt.assert_array_equal(np.array(list(estimated_ds.keys())), serialnums)
+
+
+@pytest.mark.filterwarnings(r"ignore: Large jumps in trajectory.*:UserWarning")
+def test_estimate_diffcoff_twice_as_fast(tau_traj, time_traj):
+    lags = [1, 2, 3]
+    faster_traj = Trajectory(1, tau_traj.t/2, tau_traj.x, tau_traj.y, tau_traj.species)
+    faster_traj = TrajectorySet.from_list([faster_traj])
+    estimated_d = estimate_timelag_diffcoff_from_trajset(faster_traj, lags)
+    npt.assert_almost_equal(estimated_d[1], 2*expected_d)
+
+    faster_traj = Trajectory(1, time_traj.t/2, time_traj.x, time_traj.y, time_traj.species)
+    faster_traj = TrajectorySet.from_list([faster_traj])
+    print(estimate_time_msd_from_traj(faster_traj[0]))
+    estimated_d = estimate_time_diffcoff_from_trajset(faster_traj)
+    npt.assert_almost_equal(estimated_d[1], 2*expected_d)
