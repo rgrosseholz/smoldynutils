@@ -19,6 +19,7 @@ class SmoldynParser:
 
     def parse_fixed_grid(
         self,
+        timestep: float = 1,
         dtype_xy: npt.DTypeLike = np.float64,
         dtype_t: npt.DTypeLike = np.float32,
         dtype_species: npt.DTypeLike = np.uint16,
@@ -46,6 +47,7 @@ class SmoldynParser:
         order = np.lexsort((t, serial_number))
 
         t = t[order]
+        t = t * timestep
         serial_number = serial_number[order]
         species = file_content[:, 1].astype(dtype_species, copy=False)[order]
         x = file_content[:, 3].astype(dtype_xy, copy=False)[order]
