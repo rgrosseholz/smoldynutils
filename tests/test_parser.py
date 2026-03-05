@@ -67,6 +67,10 @@ def test_fixed_grid_parser(tmp_path):
         "species": np.array([1, 1]),
     }
 
+    timestep = 0.1
+    ts = parser.parse_fixed_grid(timestep=timestep)
+    np.testing.assert_array_almost_equal(ts[0].t, np.array([1,2]) * timestep)
+
     path = _write_sample_ragged(tmp_path)
     parser = SmoldynParser(str(path))
     with pytest.raises(NotImplementedError):
