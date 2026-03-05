@@ -1,6 +1,6 @@
 [project]
 name = "smoldynutils"
-version = "0.1.1"
+version = "0.1.3"
 description = "A small collection of utility tools to process the output of Smoldyn simulations."
 authors = [
     {name = "Fabian Ormersbach",email = "fabian.ormersbach@maastrichtuniversity.nl"},
