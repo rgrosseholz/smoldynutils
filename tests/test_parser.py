@@ -59,7 +59,7 @@ def test_fixed_grid_parser(tmp_path):
     parser = SmoldynParser(str(path))
     ts = parser.parse_fixed_grid()
     assert len(ts) == 2
-    assert ts[0] == {
+    assert ts[99] == {
         "serialnum": 99,
         "t": np.array([1, 2]),
         "x": np.array([1.01686, 1.02]),
@@ -68,8 +68,9 @@ def test_fixed_grid_parser(tmp_path):
     }
 
     timestep = 0.1
-    ts = parser.parse_fixed_grid(timestep=timestep)
-    np.testing.assert_array_almost_equal(ts[0].t, np.array([1,2]) * timestep)
+    parser2 = SmoldynParser(str(path), dt=timestep)
+    ts = parser2.parse_fixed_grid()
+    np.testing.assert_array_almost_equal(ts.get_at_index(0).t, np.array([1,2]) * timestep)
 
     path = _write_sample_ragged(tmp_path)
     parser = SmoldynParser(str(path))
@@ -86,8 +87,7 @@ def test_fixed_grid_parser(tmp_path):
     parser = SmoldynParser(str(path), min_val=0, max_val=12.8)
     ts = parser.parse_fixed_grid()
     assert len(ts) == 2
-    print(ts[1].x)
-    assert ts[1] == {
+    assert ts[100] == {
         "serialnum": 100,
         "t": np.array([1, 2, 3]),
         "x": np.array([12.7828, 12.8000, 12.9000]),

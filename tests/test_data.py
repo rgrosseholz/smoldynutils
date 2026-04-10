@@ -27,7 +27,7 @@ def test_traj_construction():
     assert traj == {"t": t, "x": x, "y": y, "species": species, "serialnum": 1}
     assert traj != {"t": np.array([0.0, 1]), "x": x, "y": y, "species": species, "serialnum": 1}
     assert (traj.__eq__(1)) is NotImplemented
-    assert traj[0] == (1, t[0], x[0], y[0], species[0])
+    assert traj[0].get_data_tuple() == (1, t[0], x[0], y[0], species[0])
 
 
 def test_raises_errors():
@@ -102,3 +102,13 @@ def test_trajset_serialnums():
             4,
         ],
     )
+
+def test_time_filter():
+    t, x, y, species = _get_arrays()
+    traj_list = [Trajectory(n, t, x, y, species) for n in range(1, 5)]
+    trajs = TrajectorySet.from_list(traj_list)
+    filtered_trajs = TrajectorySet.from_trajset(trajs, 0.1)
+    assert len(filtered_trajs[1]) == 2
+    np.testing.assert_almost_equal(filtered_trajs[1].x, [1.2, 1.4]) 
+    with pytest.raises(ValueError):
+        TrajectorySet.from_trajset(trajs, 10)

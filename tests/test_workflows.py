@@ -121,6 +121,5 @@ def test_estimate_diffcoff_twice_as_fast(tau_traj, time_traj):
 
     faster_traj = Trajectory(1, time_traj.t/2, time_traj.x, time_traj.y, time_traj.species)
     faster_traj = TrajectorySet.from_list([faster_traj])
-    print(estimate_time_msd_from_traj(faster_traj[0]))
     estimated_d = estimate_time_diffcoff_from_trajset(faster_traj)
     npt.assert_almost_equal(estimated_d[1], 2*expected_d)

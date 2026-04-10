@@ -1,6 +1,6 @@
 import warnings
 from dataclasses import dataclass
-from typing import Iterator, Optional, Sequence, Type, Union, overload
+from typing import Iterator, Optional, Sequence, Type, Union, overload, Self
 
 import numpy as np
 
@@ -23,7 +23,7 @@ class Trajectory:
             ValueError: >1D for t, x, y, or species
             TypeError: Species is not integer
         """
-        n = len(self.t)
+        n = self.t.shape[0]
         if not (len(self.x) == len(self.y) == len(self.species) == n):
             raise ValueError("t, x, y, and species must have the same length")
         if self.t.ndim != 1 or self.x.ndim != 1 or self.y.ndim != 1 or self.species.ndim != 1:
@@ -89,14 +89,45 @@ class Trajectory:
 
         return NotImplemented
 
-    def __getitem__(self, i: int) -> tuple[int, float, float, float, int]:
-        return (
+    def __getitem__(self, key: Union[int, slice]) -> Self:
+        if not isinstance(key, (int, slice)):
+            raise ValueError("Key type not slice or int")
+        if isinstance(key, int):
+            # Need to convert to 1D array so post-init len(t) check doesnt fail.
+            return type(self)(
+                self.serialnumber,
+                np.array([self.t[key]]),
+                np.array([self.x[key]]),
+                np.array([self.y[key]]),
+                np.array([self.species[key]]),
+            )
+        return type(self)(
             self.serialnumber,
-            self.t[i],
-            self.x[i],
-            self.y[i],
-            self.species[i],
+            np.array(self.t[key]),
+            np.array(self.x[key]),
+            np.array(self.y[key]),
+            np.array(self.species[key]),
         )
+
+    def get_data_tuple(
+        self,
+    ) -> tuple[
+        int | np.ndarray,
+        float | np.ndarray,
+        float | np.ndarray,
+        float | np.ndarray,
+        float | np.ndarray,
+    ]:
+        if len(self.t == 1):
+            # Need to index 0 here, as values are stored in 1D array at least
+            return (
+                int(self.serialnumber),
+                float(self.t[0]),
+                float(self.x[0]),
+                float(self.y[0]),
+                float(self.species[0]),
+            )
+        return (self.serialnumber, self.t, self.x, self.y, self.species)
 
     @staticmethod
     def adjust_for_periodic_boundaries(
@@ -133,6 +164,13 @@ class TrajectorySet:
         """
         return cls(tuple(trajectories))
 
+    @classmethod
+    def from_trajset(cls, trajset: Self, start_time: Optional[float] = None) -> Self:
+        trajectories = trajset.trajectories
+        if start_time:
+            trajectories = cls._filter_start_time(trajectories, start_time)
+        return cls(tuple(trajectories))
+
     def __len__(self) -> int:
         """Returns the number of trajectories in the set
 
@@ -141,16 +179,40 @@ class TrajectorySet:
         """
         return len(self.trajectories)
 
-    def __getitem__(self, key: int) -> Trajectory:
-        """Return trajectory by index.
+    def __getitem__(self, key: Union[int, slice]) -> Trajectory:
+        """Return trajectory by serialnumber.
 
         Args:
-            key (int): Index of trajectory to retrieve
+            key (int): Serialnumber of trajectory to retrieve
+
+        Returns:
+            Trajectory: Trajectory with given serialnumber
+        """
+        if isinstance(key, int):
+            for trajectory in self.trajectories:
+                if trajectory.serialnumber == key:
+                    return trajectory
+            raise ValueError(f"No trajectory with serialnumber {key} in TrajSet.")
+        elif isinstance(key, slice):
+            raise NotImplementedError("Slice indexing not implemented for TrajSet")
+        else:
+            raise TypeError("Invalid key type supplied")
+
+    def get_at_index(self, index: Union[slice, int]) -> Trajectory:
+        """Return trajectory by index
+
+        Args:
+            index (int): Index of trajectory
 
         Returns:
             Trajectory: Trajectory at given index
         """
-        return self.trajectories[key]
+        if isinstance(index, int):
+            return self.trajectories[index]
+        elif isinstance(index, slice):
+            raise NotImplementedError("Slice indexing not implemented")
+        else:
+            raise TypeError("Invalid index type")
 
     @overload
     def __add__(self, other: "TrajectorySet") -> "TrajectorySet": ...
@@ -188,3 +250,16 @@ class TrajectorySet:
         return serialnums
 
     # TODO: Methods .t, .x, ... that return array of values of all trajectories
+    @staticmethod
+    def _filter_start_time(
+        trajectories: Sequence[Trajectory], start_time: float
+    ) -> tuple[Trajectory, ...]:
+        new_trajectories: list[Trajectory] = []
+        for trajectory in trajectories:
+            try:
+                start_index = int(np.where(np.isclose(trajectory.t, start_time))[0][0])
+            except IndexError:
+                raise ValueError(f"No match for start time {start_time} found")
+            new_traj_values = trajectory[start_index:]
+            new_trajectories.append(new_traj_values)
+        return tuple(new_trajectories)
